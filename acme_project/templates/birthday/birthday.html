@@ -2,20 +2,28 @@
 {% load django_bootstrap5 %}
 
 {% block content %}
-  <div class="card col-4">
-    <div class="card-header">
-      Калькулятор ожидания дня рождения
-    </div>
-    <form method="post">
-      <!-- Добавьте тег csrf_token. Без него POST-запрос будет отклонён. -->
-      {% csrf_token %}
-      {% bootstrap_form form %}
-      {% bootstrap_button button_type="submit" content="Отправить" %}
-    </form>    
-  </div>  <!-- Присваиваем переменной data объект request.GET -->
-
   {% with data=form.instance %}  <!-- созданный объект передаётся в объект form 
     и становится доступен в шаблоне через атрибут form.instance -->
+
+    <!-- Если в пути запроса содержится строка /edit/. -->
+    {% if '/edit/' in request.path %}
+      <!-- Вывести заголовок и номер записи. -->
+      <h1>Редактировать запись {{ data.pk }}</h1>
+    {% else %}
+      <h1>Создать запись</h1>
+    {% endif %}
+    <div class="card col-4">
+      <div class="card-header">
+        Калькулятор ожидания дня рождения
+      </div>
+      <form method="post">
+        <!-- Добавьте тег csrf_token. Без него POST-запрос будет отклонён. -->
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% bootstrap_button button_type="submit" content="Отправить" %}
+      </form>    
+    </div>  <!-- Присваиваем переменной data объект request.GET -->
+
     {% if form.is_valid %}
       ID новой записи в БД: {{ data.id }}
       <hr>
@@ -31,5 +39,4 @@
       {% endif %}
     {% endif %}
   {% endwith %}
-
 {% endblock %}
