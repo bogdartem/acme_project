@@ -22,6 +22,8 @@ INSTALLED_APPS = [
 
 MEDIA_ROOT = BASE_DIR / 'media'  # директория для пользовательских файлов
 
+# MEDIA_URL = 'media/'  # ссылка на изображения
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
