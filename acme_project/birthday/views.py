@@ -10,10 +10,10 @@ from django.views.generic import (
 )
 #  Следующие 2 импорта не нужны для CBV, кроме проверки на пользователя при 404
 #  from django.core.paginator import Paginator
-from django.shortcuts import get_object_or_404  # , redirect, render
+from django.shortcuts import get_object_or_404, redirect  # , render
 
-from .forms import BirthdayForm
-from .models import Birthday
+from .forms import BirthdayForm, CongratulationForm
+from .models import Birthday, Congratulation
 # Импортируем из utils.py функцию для подсчёта дней.
 from .utils import calculate_birthday_countdown
 
@@ -27,6 +27,12 @@ def simple_view(request):
 class BirthdayListView(ListView):
     # Указываем модель, с которой работает CBV...
     model = Birthday
+    # По умолчанию этот класс
+    # выполняет запрос queryset = Birthday.objects.all(),
+    # но мы его переопределим:
+    queryset = Birthday.objects.prefetch_related(
+        'tags'
+    ).select_related('author')
     # ...сортировку, которая будет применена при выводе списка объектов:
     ordering = 'id'
     # ...и даже настройки пагинации:
@@ -46,7 +52,14 @@ class BirthdayDetailView(DetailView):
             # Дату рождения берём из объекта в словаре context:
             self.object.birthday
         )
+        # Записываем в переменную form пустой объект формы.
+        context['form'] = CongratulationForm()
         # Возвращаем словарь контекста.
+        context['congratulations'] = (
+            # Дополнительно подгружаем авторов комментариев,
+            # чтобы избежать множества запросов к БД.
+            self.object.congratulations.select_related('author')
+        )
         return context
 
 
@@ -82,7 +95,7 @@ class BirthdayUpdateView(LoginRequiredMixin, UpdateView):
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
 
-''' проверка авторства с 404 ошибкой
+''' проверка авторства с 404 ошибкой в функции
         def dispatch(self, request, *args, **kwargs):
         # Получаем объект по первичному ключу и автору или вызываем 404 ошибку.
         get_object_or_404(Birthday, pk=kwargs['pk'], author=request.user)
@@ -106,6 +119,26 @@ class BirthdayDeleteView(LoginRequiredMixin, DeleteView):
             # так и редирект на нужную страницу.
             raise PermissionDenied
         return super().dispatch(request, *args, **kwargs)
+
+
+# Будут обработаны POST-запросы только от залогиненных пользователей.
+@login_required
+def add_comment(request, pk):
+    # Получаем объект дня рождения или выбрасываем 404 ошибку.
+    birthday = get_object_or_404(Birthday, pk=pk)
+    # Функция должна обрабатывать только POST-запросы.
+    form = CongratulationForm(request.POST)
+    if form.is_valid():
+        # Создаём объект поздравления, но не сохраняем его в БД.
+        congratulation = form.save(commit=False)
+        # В поле author передаём объект автора поздравления.
+        congratulation.author = request.user
+        # В поле birthday передаём объект дня рождения.
+        congratulation.birthday = birthday
+        # Сохраняем объект в БД.
+        congratulation.save()
+    # Перенаправляем пользователя назад, на страницу дня рождения.
+    return redirect('birthday:detail', pk=pk)
 
 
 '''
