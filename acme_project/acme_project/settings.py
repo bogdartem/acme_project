@@ -4,7 +4,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-m&$lzdzkutvrbr5vt=jpm)7#g7cken_tk%($ty+w902n7wb#=e'
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -13,6 +13,8 @@ ALLOWED_HOSTS = [
     # в этот список нужно будет добавить и адреса домена,
     # где он будет размещён, например 'acme.not' и 'www.acme.not'
 ]
+
+CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
 LOGIN_URL = 'login'
 
