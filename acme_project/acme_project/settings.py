@@ -8,6 +8,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = 'login'
+
+LOGIN_REDIRECT_URL = 'pages:homepage'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -77,6 +81,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Подключаем бэкенд filebased.EmailBackend:
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# Указываем директорию, в которую будут сохраняться файлы писем:
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 LANGUAGE_CODE = 'ru-RU'
 

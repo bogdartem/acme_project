@@ -4,8 +4,8 @@ from django.views.generic import (
 from django.urls import reverse_lazy
 
 #  Следующие 2 импорта не нужны для CBV
-from django.core.paginator import Paginator
-from django.shortcuts import get_object_or_404, redirect, render  
+#  from django.core.paginator import Paginator
+#  from django.shortcuts import get_object_or_404, redirect, render  
 
 from .forms import BirthdayForm
 from .models import Birthday
@@ -61,6 +61,8 @@ class BirthdayDeleteView(DeleteView):
     model = Birthday
     success_url = reverse_lazy('birthday:list')
 
+
+'''
 # Следующие функции можно удалить, будут как пример.
 # Добавим опциональный параметр pk.
 def birthday(request, pk=None):
@@ -124,3 +126,4 @@ def delete_birthday(request, pk):
         return redirect('birthday:list')
     # Если был получен GET-запрос — отображаем форму.
     return render(request, 'birthday/birthday.html', context)
+'''
